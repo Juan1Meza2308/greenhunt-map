@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { analyzeImage, AIAnalysisResult, CATEGORIES, MATERIALS, CONDITIONS, getEcoScore } from "@/services/aiService";
+import { applyPrivacyBlur } from "@/services/privacyBlur";
 import { MockPin } from "@/data/mockData";
 import { currentUser } from "@/data/mockData";
 
@@ -98,6 +99,7 @@ const CameraView = ({ onClose, onPublish }: CameraViewProps) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.drawImage(video, 0, 0);
+    await applyPrivacyBlur(canvas);
     const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
     const base64 = dataUrl.split(",")[1];
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -110,8 +112,19 @@ const CameraView = ({ onClose, onPublish }: CameraViewProps) => {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const dataUrl = ev.target?.result as string;
-      const base64 = dataUrl.split(",")[1];
-      await processImageAndAnalyze(dataUrl, base64);
+      // Draw into canvas so we can apply privacy blur before processing
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0);
+        await applyPrivacyBlur(canvas);
+        const blurredDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+        await processImageAndAnalyze(blurredDataUrl, blurredDataUrl.split(",")[1]);
+      };
+      img.src = dataUrl;
     };
     reader.readAsDataURL(file);
   }, [processImageAndAnalyze]);
