@@ -100,8 +100,13 @@ export async function analyzeImage(base64Image: string): Promise<AIAnalysisResul
     }
 
     const data = await response.json();
-    const content = data.choices[0]?.message?.content?.trim();
-    if (!content) throw new Error("Empty response");
+    const raw = data.choices[0]?.message?.content?.trim();
+    if (!raw) throw new Error("Empty response");
+
+    // Strip markdown code fences if GPT wraps the JSON
+    const content = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+
+    console.log("[AI] raw response:", raw);
 
     const parsed = JSON.parse(content);
     const ecoImpact = getEcoScore(parsed.category);
@@ -115,7 +120,7 @@ export async function analyzeImage(base64Image: string): Promise<AIAnalysisResul
       ecoImpact,
     };
   } catch (error) {
-    console.error("AI analysis failed:", error);
+    console.error("[AI] analysis failed:", error);
     return FALLBACK_RESULT;
   }
 }
