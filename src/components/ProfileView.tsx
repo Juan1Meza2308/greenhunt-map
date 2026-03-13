@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { X, Leaf, Droplets, TreePine, Recycle, Edit2 } from "lucide-react";
+import { toast } from "sonner";
 import { currentUser } from "@/data/mockData";
 
 interface ProfileViewProps {
@@ -35,7 +36,10 @@ const ProfileView = ({ onClose }: ProfileViewProps) => {
               alt={user.displayName}
               className="w-20 h-20 rounded-full object-cover border-2 border-primary"
             />
-            <button className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+            <button
+              onClick={() => toast.info("Edición de perfil — próximamente")}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
+            >
               <Edit2 size={12} />
             </button>
           </div>

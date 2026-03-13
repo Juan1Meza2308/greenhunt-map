@@ -18,6 +18,7 @@ const Index = () => {
   const [selectedPin, setSelectedPin] = useState<MockPin | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [lastCo2, setLastCo2] = useState(20);
+  const [centerTrigger, setCenterTrigger] = useState(0);
 
   // Called once by MapView when it gets the user's real GPS location
   const handleLocationFound = useCallback((lat: number, lng: number) => {
@@ -63,6 +64,7 @@ const Index = () => {
         pins={visiblePins}
         onPinTap={handlePinTap}
         onLocationFound={handleLocationFound}
+        centerTrigger={centerTrigger}
       />
 
       {/* Floating navigation */}
@@ -71,6 +73,7 @@ const Index = () => {
         onProfilePress={() => setView(view === "profile" ? "map" : "profile")}
         onLeaderboardPress={() => setView(view === "leaderboard" ? "map" : "leaderboard")}
         onFeedPress={() => setView(view === "feed" ? "map" : "feed")}
+        onCenterMap={() => setCenterTrigger((n) => n + 1)}
         activeView={view}
       />
 
