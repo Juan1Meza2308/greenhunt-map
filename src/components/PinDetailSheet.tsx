@@ -52,7 +52,7 @@ const PinDetailSheet = ({ pin, onClose, onRescue, onGone }: PinDetailSheetProps)
         <>
           {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 z-40 bg-gh-charcoal/60"
+            className="absolute inset-0 z-[1100] bg-gh-charcoal/60"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -61,7 +61,7 @@ const PinDetailSheet = ({ pin, onClose, onRescue, onGone }: PinDetailSheetProps)
 
           {/* Sheet */}
           <motion.div
-            className="absolute bottom-0 left-0 right-0 z-50 bg-secondary rounded-t-3xl max-h-[78vh] overflow-y-auto"
+            className="absolute bottom-0 left-0 right-0 z-[1200] bg-secondary rounded-t-3xl max-h-[78vh] overflow-y-auto"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}

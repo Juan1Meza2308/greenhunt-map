@@ -115,7 +115,7 @@ const MapView = ({ pins, onPinTap, onLocationFound }: MapViewProps) => {
         @keyframes leaflet-ping {
           75%, 100% { transform: scale(2.5); opacity: 0; }
         }
-        .leaflet-container { background: #2d3520; }
+        .leaflet-container { background: #0d1117; }
         .leaflet-control-attribution { display: none; }
         .leaflet-control-zoom { display: none; }
       `}</style>
@@ -127,9 +127,9 @@ const MapView = ({ pins, onPinTap, onLocationFound }: MapViewProps) => {
         zoomControl={false}
         attributionControl={false}
       >
-        {/* Satellite tiles */}
+        {/* Dark CartoDB tiles */}
         <TileLayer
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution=""
         />
 

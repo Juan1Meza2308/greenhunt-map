@@ -13,7 +13,7 @@ const FloatingNav = ({ onCameraPress, onProfilePress, onLeaderboardPress, onFeed
   return (
     <>
       {/* ── Top header ── */}
-      <div className="absolute top-0 left-0 right-0 z-30 px-4 pt-3 pb-2">
+      <div className="absolute top-0 left-0 right-0 z-[1100] px-4 pt-3 pb-2">
         {/* Row 1: logo + right icons */}
         <div className="flex items-center justify-between mb-2">
           {/* Logo */}
@@ -57,7 +57,7 @@ const FloatingNav = ({ onCameraPress, onProfilePress, onLeaderboardPress, onFeed
       </div>
 
       {/* ── Right side map controls ── */}
-      <div className="absolute right-3 bottom-28 z-30 flex flex-col gap-2">
+      <div className="absolute right-3 bottom-28 z-[1100] flex flex-col gap-2">
         {[
           { Icon: Compass, label: "compass" },
           { Icon: Layers, label: "layers" },
@@ -73,7 +73,7 @@ const FloatingNav = ({ onCameraPress, onProfilePress, onLeaderboardPress, onFeed
       </div>
 
       {/* ── Bottom tab bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-30">
+      <div className="absolute bottom-0 left-0 right-0 z-[1100]">
         <div className="bg-white/95 backdrop-blur-sm border-t border-gray-100 shadow-xl px-2 pt-2 pb-4">
           <div className="flex items-center justify-around">
             {/* Map */}
