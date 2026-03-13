@@ -168,6 +168,13 @@ const CameraView = ({ onClose, onPublish }: CameraViewProps) => {
       <div className="flex-1 relative mx-4 mb-4 rounded-2xl overflow-hidden">
         {step === "capture" && (
           <div className="w-full h-full bg-gh-surface-dark relative">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
             {!cameraError ? (
               <video
                 ref={videoRef}
@@ -190,13 +197,6 @@ const CameraView = ({ onClose, onPublish }: CameraViewProps) => {
                     <Upload size={14} />
                     Subir foto
                   </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                  />
                 </div>
               </div>
             )}
@@ -274,14 +274,23 @@ const CameraView = ({ onClose, onPublish }: CameraViewProps) => {
       {/* Bottom section */}
       <div className="px-4 pb-6">
         {step === "capture" && !cameraError && (
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={handleCapture}
-            className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-lg flex items-center justify-center gap-2 gh-glow"
-          >
-            <Camera size={20} />
-            Capturar
-          </motion.button>
+          <div className="flex gap-3">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={handleCapture}
+              className="flex-1 h-14 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-lg flex items-center justify-center gap-2 gh-glow"
+            >
+              <Camera size={20} />
+              Capturar
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => fileInputRef.current?.click()}
+              className="h-14 px-5 rounded-2xl bg-gh-surface-dark border border-primary/30 text-primary flex items-center justify-center"
+            >
+              <Upload size={20} />
+            </motion.button>
+          </div>
         )}
 
         {step === "scanning" && (
