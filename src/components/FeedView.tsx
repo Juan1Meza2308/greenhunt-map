@@ -11,7 +11,7 @@ interface FeedViewProps {
 const FeedView = ({ pins, onClose, onPinTap }: FeedViewProps) => {
   return (
     <motion.div
-      className="absolute inset-0 z-50 bg-background overflow-y-auto"
+      className="absolute inset-0 z-[1500] bg-background overflow-y-auto"
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
       exit={{ y: "100%" }}

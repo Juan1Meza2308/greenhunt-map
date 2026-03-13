@@ -148,7 +148,7 @@ const CameraView = ({ onClose, onPublish }: CameraViewProps) => {
 
   return (
     <motion.div
-      className="absolute inset-0 z-50 bg-gh-charcoal flex flex-col"
+      className="absolute inset-0 z-[1500] bg-gh-charcoal flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
