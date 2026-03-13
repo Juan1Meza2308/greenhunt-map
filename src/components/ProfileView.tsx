@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { X, Leaf, Droplets, TreePine, Recycle, Edit2 } from "lucide-react";
+import { X, Leaf, Droplets, TreePine, Recycle, Edit2, Download, Share } from "lucide-react";
 import { toast } from "sonner";
 import { currentUser } from "@/data/mockData";
+import { useInstallPWA } from "@/hooks/useInstallPWA";
 
 interface ProfileViewProps {
   onClose: () => void;
@@ -10,6 +11,7 @@ interface ProfileViewProps {
 const ProfileView = ({ onClose }: ProfileViewProps) => {
   const user = currentUser;
   const role = user.postsCreated > user.itemsRescued ? "Explorer 🔍" : "Hunter 🎯";
+  const { state, install } = useInstallPWA();
 
   return (
     <motion.div
@@ -101,6 +103,25 @@ const ProfileView = ({ onClose }: ProfileViewProps) => {
             <div className="text-4xl">🌱</div>
           </div>
         </div>
+
+        {/* Install app */}
+        {state === "android-ready" && (
+          <button
+            onClick={install}
+            className="mt-4 w-full flex items-center justify-center gap-2 h-12 rounded-2xl border border-primary/30 text-primary font-display font-semibold text-sm"
+          >
+            <Download size={18} />
+            Instalar app
+          </button>
+        )}
+        {state === "ios-manual" && (
+          <div className="mt-4 w-full flex items-center gap-3 h-12 rounded-2xl border border-primary/30 px-4">
+            <Share size={18} className="text-primary shrink-0" />
+            <p className="text-xs text-muted-foreground font-body">
+              Toca <span className="text-primary font-semibold">Compartir</span> → "Añadir a pantalla de inicio"
+            </p>
+          </div>
+        )}
       </div>
     </motion.div>
   );
