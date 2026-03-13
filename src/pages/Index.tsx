@@ -8,6 +8,7 @@ import ProfileView from "@/components/ProfileView";
 import LeaderboardView from "@/components/LeaderboardView";
 import FeedView from "@/components/FeedView";
 import SuccessToast from "@/components/SuccessToast";
+import InstallBanner from "@/components/InstallBanner";
 import { MockPin, getMockPinsNearLocation } from "@/data/mockData";
 import { isFirebaseConfigured } from "@/services/firebase";
 import { subscribeToPins, addPin, markPinRescued, markPinGone } from "@/services/pinsService";
@@ -143,6 +144,7 @@ const Index = () => {
       </AnimatePresence>
 
       <SuccessToast show={showSuccess} co2Saved={lastCo2} />
+      <InstallBanner />
     </div>
   );
 };
