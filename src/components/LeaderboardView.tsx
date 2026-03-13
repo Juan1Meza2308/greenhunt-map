@@ -12,7 +12,7 @@ const LeaderboardView = ({ onClose }: LeaderboardViewProps) => {
 
   return (
     <motion.div
-      className="absolute inset-0 z-50 bg-background overflow-y-auto"
+      className="absolute inset-0 z-[1500] bg-background overflow-y-auto"
       initial={{ x: "100%" }}
       animate={{ x: 0 }}
       exit={{ x: "100%" }}
