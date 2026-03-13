@@ -91,14 +91,9 @@ async function analyzeWithGemini(base64Image: string, apiKey: string): Promise<A
 
   if (!response.ok) throw new Error(`Gemini error: ${response.status}`);
 
-    const data = await response.json();
-    const raw = data.choices[0]?.message?.content?.trim();
-    if (!raw) throw new Error("Empty response");
-
-    // Strip markdown code fences if GPT wraps the JSON
-    const content = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-
-    console.log("[AI] raw response:", raw);
+  const data = await response.json();
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  if (!raw) throw new Error("Empty Gemini response");
 
   return parseAIResponse(raw);
 }
