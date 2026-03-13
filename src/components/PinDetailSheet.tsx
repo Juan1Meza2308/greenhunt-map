@@ -1,16 +1,50 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Navigation, MapPin, Clock, Leaf, Droplets, TreePine, Recycle } from "lucide-react";
-import { MockPin, getTimeSince, getPinAge } from "@/data/mockData";
+import { MockPin, getTimeSince, getPinAge, getExpiresIn } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 
 interface PinDetailSheetProps {
   pin: MockPin | null;
   onClose: () => void;
+  onRescue?: (pinId: string) => void;
+  onGone?: (pinId: string) => void;
 }
 
-const PinDetailSheet = ({ pin, onClose }: PinDetailSheetProps) => {
+const PinDetailSheet = ({ pin, onClose, onRescue, onGone }: PinDetailSheetProps) => {
+  const [stillHereVotes, setStillHereVotes] = useState(0);
+  const [goneVotes, setGoneVotes] = useState(0);
+  const [voted, setVoted] = useState<"here" | "gone" | null>(null);
+
   if (!pin) return null;
   const age = getPinAge(pin.createdAt);
+
+  const handleGoThere = () => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${pin.lat},${pin.lng}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleRescue = () => {
+    onRescue?.(pin.id);
+    onClose();
+  };
+
+  const handleStillHere = () => {
+    if (voted) return;
+    setStillHereVotes((v) => v + 1);
+    setVoted("here");
+  };
+
+  const handleGone = () => {
+    if (voted) return;
+    setGoneVotes((v) => v + 1);
+    setVoted("gone");
+    // Remove pin from map after a short delay so user sees feedback
+    setTimeout(() => {
+      onGone?.(pin.id);
+      onClose();
+    }, 1200);
+  };
 
   return (
     <AnimatePresence>
@@ -27,7 +61,7 @@ const PinDetailSheet = ({ pin, onClose }: PinDetailSheetProps) => {
 
           {/* Sheet */}
           <motion.div
-            className="absolute bottom-0 left-0 right-0 z-50 bg-secondary rounded-t-3xl max-h-[75vh] overflow-y-auto"
+            className="absolute bottom-0 left-0 right-0 z-50 bg-secondary rounded-t-3xl max-h-[78vh] overflow-y-auto"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -52,11 +86,13 @@ const PinDetailSheet = ({ pin, onClose }: PinDetailSheetProps) => {
                   className="w-full h-48 object-cover"
                 />
                 {/* Time badge */}
-                <div className={`absolute top-3 left-3 rounded-full px-2.5 py-1 text-[11px] font-display font-semibold ${
-                  age === "fresh"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-accent text-accent-foreground"
-                }`}>
+                <div
+                  className={`absolute top-3 left-3 rounded-full px-2.5 py-1 text-[11px] font-display font-semibold ${
+                    age === "fresh"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-accent text-accent-foreground"
+                  }`}
+                >
                   <Clock size={10} className="inline mr-1" />
                   {getTimeSince(pin.createdAt)}
                 </div>
@@ -64,10 +100,16 @@ const PinDetailSheet = ({ pin, onClose }: PinDetailSheetProps) => {
                 <div className="absolute top-3 right-3 bg-secondary/90 backdrop-blur rounded-full px-2.5 py-1 text-[11px] font-display text-secondary-foreground">
                   {pin.category}
                 </div>
+                {/* Expiry badge */}
+                <div className="absolute bottom-3 right-3 bg-gh-charcoal/80 backdrop-blur rounded-full px-2.5 py-1 text-[10px] font-body text-muted-foreground">
+                  {getExpiresIn(pin.createdAt)}
+                </div>
               </div>
 
               {/* Title & Description */}
-              <h3 className="text-lg font-display font-bold text-secondary-foreground mb-1">{pin.title}</h3>
+              <h3 className="text-lg font-display font-bold text-secondary-foreground mb-1">
+                {pin.title}
+              </h3>
               <p className="text-sm text-muted-foreground font-body mb-3">{pin.description}</p>
 
               {/* Meta chips */}
@@ -79,7 +121,8 @@ const PinDetailSheet = ({ pin, onClose }: PinDetailSheetProps) => {
                   {pin.condition}
                 </span>
                 <span className="text-[11px] bg-muted/30 text-muted-foreground rounded-full px-2.5 py-1 font-body flex items-center gap-1">
-                  <MapPin size={10} /> 350m
+                  <MapPin size={10} />
+                  {pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}
                 </span>
               </div>
 
@@ -97,51 +140,81 @@ const PinDetailSheet = ({ pin, onClose }: PinDetailSheetProps) => {
                 {pin.ecoImpact.co2Saved > 0 && (
                   <div className="bg-primary/10 rounded-xl p-2 text-center">
                     <Leaf size={16} className="text-primary mx-auto mb-1" />
-                    <p className="text-sm font-display font-bold text-secondary-foreground">{pin.ecoImpact.co2Saved}</p>
+                    <p className="text-sm font-display font-bold text-secondary-foreground">
+                      {pin.ecoImpact.co2Saved}
+                    </p>
                     <p className="text-[9px] text-muted-foreground">kg CO₂</p>
                   </div>
                 )}
                 {pin.ecoImpact.waterSaved > 0 && (
                   <div className="bg-primary/10 rounded-xl p-2 text-center">
                     <Droplets size={16} className="text-primary mx-auto mb-1" />
-                    <p className="text-sm font-display font-bold text-secondary-foreground">{pin.ecoImpact.waterSaved}</p>
+                    <p className="text-sm font-display font-bold text-secondary-foreground">
+                      {pin.ecoImpact.waterSaved}
+                    </p>
                     <p className="text-[9px] text-muted-foreground">L agua</p>
                   </div>
                 )}
                 {pin.ecoImpact.treesSaved > 0 && (
                   <div className="bg-primary/10 rounded-xl p-2 text-center">
                     <TreePine size={16} className="text-primary mx-auto mb-1" />
-                    <p className="text-sm font-display font-bold text-secondary-foreground">{pin.ecoImpact.treesSaved}</p>
+                    <p className="text-sm font-display font-bold text-secondary-foreground">
+                      {pin.ecoImpact.treesSaved}
+                    </p>
                     <p className="text-[9px] text-muted-foreground">árboles</p>
                   </div>
                 )}
                 {pin.ecoImpact.wasteDiverted > 0 && (
                   <div className="bg-primary/10 rounded-xl p-2 text-center">
                     <Recycle size={16} className="text-primary mx-auto mb-1" />
-                    <p className="text-sm font-display font-bold text-secondary-foreground">{pin.ecoImpact.wasteDiverted}</p>
+                    <p className="text-sm font-display font-bold text-secondary-foreground">
+                      {pin.ecoImpact.wasteDiverted}
+                    </p>
                     <p className="text-[9px] text-muted-foreground">kg resid.</p>
                   </div>
                 )}
               </div>
 
-              {/* Action buttons */}
+              {/* Primary action buttons */}
               <div className="flex gap-2">
-                <Button className="flex-1 bg-primary text-primary-foreground font-display rounded-xl h-12">
+                <Button
+                  onClick={handleGoThere}
+                  className="flex-1 bg-primary text-primary-foreground font-display rounded-xl h-12"
+                >
                   <Navigation size={16} className="mr-2" />
                   Llévame ahí
                 </Button>
-                <Button className="flex-1 bg-primary/20 text-primary font-display rounded-xl h-12 hover:bg-primary/30">
+                <Button
+                  onClick={handleRescue}
+                  className="flex-1 bg-primary/20 text-primary font-display rounded-xl h-12 hover:bg-primary/30"
+                >
                   🎯 ¡Lo rescaté!
                 </Button>
               </div>
 
-              {/* Community buttons */}
+              {/* Community validation buttons */}
               <div className="flex gap-2 mt-2">
-                <button className="flex-1 text-center py-2 text-[11px] text-muted-foreground font-body rounded-xl border border-border/30 hover:bg-muted/20 transition-colors">
-                  ✅ Sigue aquí
+                <button
+                  onClick={handleStillHere}
+                  disabled={voted !== null}
+                  className={`flex-1 text-center py-2 text-[11px] font-body rounded-xl border transition-colors ${
+                    voted === "here"
+                      ? "border-primary/50 bg-primary/10 text-primary"
+                      : "border-border/30 text-muted-foreground hover:bg-muted/20"
+                  }`}
+                >
+                  ✅ Sigue aquí{stillHereVotes > 0 && ` (${stillHereVotes})`}
                 </button>
-                <button className="flex-1 text-center py-2 text-[11px] text-muted-foreground font-body rounded-xl border border-border/30 hover:bg-muted/20 transition-colors">
-                  ❌ Ya no está
+                <button
+                  onClick={handleGone}
+                  disabled={voted !== null}
+                  className={`flex-1 text-center py-2 text-[11px] font-body rounded-xl border transition-colors ${
+                    voted === "gone"
+                      ? "border-destructive/50 bg-destructive/10 text-destructive"
+                      : "border-border/30 text-muted-foreground hover:bg-muted/20"
+                  }`}
+                >
+                  ❌ Ya no está{goneVotes > 0 && ` (${goneVotes})`}
                 </button>
               </div>
             </div>

@@ -209,3 +209,29 @@ export function getPinAge(date: Date): "fresh" | "aging" {
   const hours = (Date.now() - date.getTime()) / (1000 * 60 * 60);
   return hours < 24 ? "fresh" : "aging";
 }
+
+export function getExpiresIn(date: Date): string {
+  const expiresAt = date.getTime() + 48 * 60 * 60 * 1000;
+  const remaining = expiresAt - Date.now();
+  if (remaining <= 0) return "expirado";
+  const hours = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+  if (hours > 0) return `expira en ${hours}h ${minutes}m`;
+  return `expira en ${minutes}m`;
+}
+
+const PIN_OFFSETS = [
+  { dlat: 0.0018, dlng: 0.0025 },
+  { dlat: -0.0012, dlng: 0.0042 },
+  { dlat: 0.0035, dlng: -0.0018 },
+  { dlat: -0.0028, dlng: -0.0035 },
+  { dlat: 0.0008, dlng: -0.0050 },
+];
+
+export function getMockPinsNearLocation(lat: number, lng: number): MockPin[] {
+  return mockPins.map((pin, i) => ({
+    ...pin,
+    lat: lat + PIN_OFFSETS[i % PIN_OFFSETS.length].dlat,
+    lng: lng + PIN_OFFSETS[i % PIN_OFFSETS.length].dlng,
+  }));
+}

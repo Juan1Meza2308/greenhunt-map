@@ -1,100 +1,144 @@
+import { useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import L from "leaflet";
 import { MockPin, getPinAge, getTimeSince } from "@/data/mockData";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface MapViewProps {
   pins: MockPin[];
   onPinTap: (pin: MockPin) => void;
+  onLocationFound?: (lat: number, lng: number) => void;
 }
 
-const MapView = ({ pins, onPinTap }: MapViewProps) => {
+// Custom DivIcon markers — teardrop location pin style
+const createPinIcon = (age: "fresh" | "aging") => {
+  const color = age === "fresh" ? "#13b870" : "#f59e0b";
+  const border = age === "fresh" ? "#0d9458" : "#d97706";
+  return L.divIcon({
+    html: `<div style="position:relative;width:32px;height:40px;">
+      <!-- Pin body -->
+      <div style="
+        width:32px;height:32px;border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        background:${color};
+        border:2px solid ${border};
+        box-shadow:0 2px 8px rgba(0,0,0,0.4);
+        position:absolute;top:0;left:0;
+      "></div>
+      <!-- Inner circle -->
+      <div style="
+        width:14px;height:14px;border-radius:50%;
+        background:rgba(255,255,255,0.9);
+        position:absolute;top:9px;left:9px;
+      "></div>
+    </div>`,
+    className: "",
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+  });
+};
+
+const userLocationIcon = L.divIcon({
+  html: `<div style="position:relative;width:20px;height:20px;">
+    <div style="
+      width:20px;height:20px;border-radius:50%;
+      background:#ffffff;border:3px solid #13b870;
+      box-shadow:0 0 0 4px rgba(19,184,112,0.3);
+    "></div>
+  </div>`,
+  className: "",
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
+
+// Component that gets user location, centers map, and calls onLocationFound once
+const LocationTracker = ({
+  onLocationFound,
+}: {
+  onLocationFound?: (lat: number, lng: number) => void;
+}) => {
+  const map = useMap();
+  const called = useRef(false);
+
+  useEffect(() => {
+    const handleFound = (lat: number, lng: number) => {
+      if (called.current) return;
+      called.current = true;
+      map.setView([lat, lng], 16);
+      onLocationFound?.(lat, lng);
+    };
+
+    if (!navigator.geolocation) {
+      handleFound(40.4168, -3.7038); // default Madrid
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => handleFound(pos.coords.latitude, pos.coords.longitude),
+      () => handleFound(40.4168, -3.7038),
+      { timeout: 8000 }
+    );
+  }, [map, onLocationFound]);
+
+  return null;
+};
+
+// Pins layer - separate component to avoid re-rendering MapContainer
+const PinsLayer = ({
+  pins,
+  onPinTap,
+}: {
+  pins: MockPin[];
+  onPinTap: (pin: MockPin) => void;
+}) => {
   return (
-    <div className="relative w-full h-full bg-gh-asphalt-deep overflow-hidden">
-      {/* Dark map background with grid */}
-      <div className="absolute inset-0">
-        <svg className="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-              <path d="M 60 0 L 0 0 0 60" fill="none" stroke="hsl(var(--gh-green) / 0.3)" strokeWidth="0.5" />
-            </pattern>
-            <pattern id="roads" width="200" height="200" patternUnits="userSpaceOnUse">
-              <line x1="100" y1="0" x2="100" y2="200" stroke="hsl(var(--gh-green) / 0.15)" strokeWidth="3" />
-              <line x1="0" y1="80" x2="200" y2="80" stroke="hsl(var(--gh-green) / 0.15)" strokeWidth="2" />
-              <line x1="0" y1="150" x2="200" y2="150" stroke="hsl(var(--gh-green) / 0.1)" strokeWidth="1.5" />
-              <line x1="50" y1="0" x2="50" y2="200" stroke="hsl(var(--gh-green) / 0.08)" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-          <rect width="100%" height="100%" fill="url(#roads)" />
-        </svg>
-      </div>
+    <>
+      {pins.map((pin) => {
+        const age = getPinAge(pin.createdAt);
+        const icon = createPinIcon(age);
+        return (
+          <Marker
+            key={pin.id}
+            position={[pin.lat, pin.lng]}
+            icon={icon}
+            eventHandlers={{ click: () => onPinTap(pin) }}
+          />
+        );
+      })}
+    </>
+  );
+};
 
-      {/* Street labels */}
-      <div className="absolute top-[20%] left-[15%] text-gh-green/20 text-[10px] font-body tracking-widest uppercase rotate-[-15deg]">
-        Bedford Ave
-      </div>
-      <div className="absolute top-[55%] left-[5%] text-gh-green/20 text-[10px] font-body tracking-widest uppercase rotate-[0deg]">
-        Metropolitan Ave
-      </div>
-      <div className="absolute top-[35%] right-[10%] text-gh-green/20 text-[10px] font-body tracking-widest uppercase rotate-[75deg]">
-        Driggs Ave
-      </div>
+const MapView = ({ pins, onPinTap, onLocationFound }: MapViewProps) => {
+  return (
+    <>
+      <style>{`
+        @keyframes leaflet-ping {
+          75%, 100% { transform: scale(2.5); opacity: 0; }
+        }
+        .leaflet-container { background: #2d3520; }
+        .leaflet-control-attribution { display: none; }
+        .leaflet-control-zoom { display: none; }
+      `}</style>
 
-      {/* Mock pins */}
-      <AnimatePresence>
-        {pins.map((pin, index) => {
-          const age = getPinAge(pin.createdAt);
-          // Spread pins across the viewport
-          const positions = [
-            { top: "25%", left: "30%" },
-            { top: "40%", left: "55%" },
-            { top: "60%", left: "20%" },
-            { top: "18%", left: "70%" },
-            { top: "72%", left: "65%" },
-          ];
-          const pos = positions[index % positions.length];
+      <MapContainer
+        center={[40.4168, -3.7038]}
+        zoom={15}
+        className="w-full h-full"
+        zoomControl={false}
+        attributionControl={false}
+      >
+        {/* Satellite tiles */}
+        <TileLayer
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          attribution=""
+        />
 
-          return (
-            <motion.button
-              key={pin.id}
-              className="absolute z-10 group"
-              style={{ top: pos.top, left: pos.left }}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: index * 0.1, type: "spring", stiffness: 300 }}
-              onClick={() => onPinTap(pin)}
-            >
-              {/* Pin dot */}
-              <div className={`relative w-4 h-4 rounded-full ${
-                age === "fresh" ? "bg-primary" : "bg-accent"
-              } shadow-lg`}>
-                {/* Pulse ring */}
-                <div className={`absolute inset-0 rounded-full animate-ping ${
-                  age === "fresh" ? "bg-primary/40" : "bg-accent/40"
-                }`} style={{ animationDuration: "3s" }} />
-              </div>
-              {/* Tooltip on hover */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="gh-glass rounded-lg px-2 py-1 whitespace-nowrap">
-                  <p className="text-[11px] font-display text-secondary-foreground">{pin.title}</p>
-                  <p className="text-[9px] text-muted-foreground">{getTimeSince(pin.createdAt)}</p>
-                </div>
-              </div>
-            </motion.button>
-          );
-        })}
-      </AnimatePresence>
+        <LocationTracker onLocationFound={onLocationFound} />
 
-      {/* User location indicator */}
-      <div className="absolute top-[45%] left-[45%] z-20">
-        <div className="w-3 h-3 rounded-full bg-primary border-2 border-primary-foreground shadow-lg gh-glow" />
-        <div className="absolute inset-0 w-3 h-3 rounded-full bg-primary/30 animate-ping" />
-      </div>
-
-      {/* Map attribution */}
-      <div className="absolute bottom-2 right-2 text-[8px] text-muted-foreground/40 font-body">
-        Mapbox · Demo Mode
-      </div>
-    </div>
+        {/* User location dot — rendered last so it's on top */}
+        <PinsLayer pins={pins} onPinTap={onPinTap} />
+      </MapContainer>
+    </>
   );
 };
 
