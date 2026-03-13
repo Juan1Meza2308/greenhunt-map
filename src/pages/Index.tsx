@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import MapView from "@/components/MapView";
 import FloatingNav from "@/components/FloatingNav";
@@ -9,6 +9,8 @@ import LeaderboardView from "@/components/LeaderboardView";
 import FeedView from "@/components/FeedView";
 import SuccessToast from "@/components/SuccessToast";
 import { MockPin, getMockPinsNearLocation } from "@/data/mockData";
+import { isFirebaseConfigured } from "@/services/firebase";
+import { subscribeToPins, addPin, markPinRescued, markPinGone } from "@/services/pinsService";
 
 type ViewState = "map" | "camera" | "profile" | "leaderboard" | "feed";
 
@@ -20,46 +22,81 @@ const Index = () => {
   const [lastCo2, setLastCo2] = useState(20);
   const [centerTrigger, setCenterTrigger] = useState(0);
 
-  // Called once by MapView when it gets the user's real GPS location
-  const handleLocationFound = useCallback((lat: number, lng: number) => {
-    setPins((prev) => {
-      // Only populate with mock pins once (when prev is empty)
-      if (prev.length === 0) return getMockPinsNearLocation(lat, lng);
-      return prev;
-    });
-  }, []);
+  const firebaseOn = isFirebaseConfigured();
+
+  // ── Firebase real-time subscription ──────────────────────────────────────
+  useEffect(() => {
+    if (!firebaseOn) return;
+    const unsubscribe = subscribeToPins((fbPins) => setPins(fbPins));
+    return unsubscribe;
+  }, [firebaseOn]);
+
+  // ── Mock fallback: populate pins once we know the user's GPS location ─────
+  const handleLocationFound = useCallback(
+    (lat: number, lng: number) => {
+      if (firebaseOn) return; // Firebase handles pins
+      setPins((prev) => {
+        if (prev.length === 0) return getMockPinsNearLocation(lat, lng);
+        return prev;
+      });
+    },
+    [firebaseOn]
+  );
 
   const handlePinTap = (pin: MockPin) => {
     if (view !== "map") setView("map");
     setSelectedPin(pin);
   };
 
-  const handlePublish = useCallback((newPinData: Omit<MockPin, "id">) => {
-    const newPin: MockPin = { ...newPinData, id: `pin-${Date.now()}` };
-    setPins((prev) => [newPin, ...prev]);
-    setLastCo2(newPinData.ecoImpact.co2Saved);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3500);
-  }, []);
+  const handlePublish = useCallback(
+    async (newPinData: Omit<MockPin, "id">) => {
+      if (firebaseOn) {
+        // Upload photo + save to Firestore; onSnapshot will update the map
+        await addPin(newPinData);
+      } else {
+        const newPin: MockPin = { ...newPinData, id: `pin-${Date.now()}` };
+        setPins((prev) => [newPin, ...prev]);
+      }
+      setLastCo2(newPinData.ecoImpact.co2Saved);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3500);
+    },
+    [firebaseOn]
+  );
 
-  const handleRescue = useCallback((pinId: string) => {
-    setPins((prev) =>
-      prev.map((p) => (p.id === pinId ? { ...p, status: "rescued" as const } : p))
-    );
-    setSelectedPin(null);
-  }, []);
+  const handleRescue = useCallback(
+    async (pinId: string) => {
+      if (firebaseOn) {
+        await markPinRescued(pinId);
+        // onSnapshot will remove it from the list (query filters status === 'available')
+      } else {
+        setPins((prev) =>
+          prev.map((p) => (p.id === pinId ? { ...p, status: "rescued" as const } : p))
+        );
+      }
+      setSelectedPin(null);
+    },
+    [firebaseOn]
+  );
 
-  const handleGone = useCallback((pinId: string) => {
-    setPins((prev) => prev.filter((p) => p.id !== pinId));
-    setSelectedPin(null);
-  }, []);
+  const handleGone = useCallback(
+    async (pinId: string) => {
+      if (firebaseOn) {
+        await markPinGone(pinId);
+        // onSnapshot will remove it from the list (document deleted)
+      } else {
+        setPins((prev) => prev.filter((p) => p.id !== pinId));
+      }
+      setSelectedPin(null);
+    },
+    [firebaseOn]
+  );
 
-  // Only show available (not rescued) pins on map
-  const visiblePins = pins.filter((p) => p.status === "available");
+  // Firebase query already filters status === 'available'; mock needs the filter
+  const visiblePins = firebaseOn ? pins : pins.filter((p) => p.status === "available");
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#2d3520]">
-      {/* Map base layer */}
+    <div className="relative w-full h-screen overflow-hidden bg-[#0d1117]">
       <MapView
         pins={visiblePins}
         onPinTap={handlePinTap}
@@ -67,7 +104,6 @@ const Index = () => {
         centerTrigger={centerTrigger}
       />
 
-      {/* Floating navigation */}
       <FloatingNav
         onCameraPress={() => setView("camera")}
         onProfilePress={() => setView(view === "profile" ? "map" : "profile")}
@@ -77,7 +113,6 @@ const Index = () => {
         activeView={view}
       />
 
-      {/* Pin detail bottom sheet */}
       <AnimatePresence>
         {selectedPin && (
           <PinDetailSheet
@@ -89,7 +124,6 @@ const Index = () => {
         )}
       </AnimatePresence>
 
-      {/* Overlay views */}
       <AnimatePresence>
         {view === "camera" && (
           <CameraView onClose={() => setView("map")} onPublish={handlePublish} />
@@ -108,7 +142,6 @@ const Index = () => {
         )}
       </AnimatePresence>
 
-      {/* Success toast */}
       <SuccessToast show={showSuccess} co2Saved={lastCo2} />
     </div>
   );
