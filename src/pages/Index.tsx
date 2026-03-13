@@ -97,7 +97,7 @@ const Index = () => {
   const visiblePins = firebaseOn ? pins : pins.filter((p) => p.status === "available");
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#0d1117]">
+    <div className="relative w-full overflow-hidden bg-[#0d1117]" style={{ height: "100dvh" }}>
       <MapView
         pins={visiblePins}
         onPinTap={handlePinTap}
