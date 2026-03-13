@@ -82,7 +82,8 @@ export async function analyzeImage(base64Image: string): Promise<AIAnalysisResul
               {
                 type: "text",
                 text: `Analiza este objeto abandonado en la calle y responde SOLO con un objeto JSON válido (sin markdown, solo JSON puro) con exactamente esta estructura:
-{"title":"nombre corto del objeto","description":"descripción de 1-2 frases del estado y características","category":"una de: Sofá, Sillón, Mesa, Silla, Estante, Cama, Armario, Electrodoméstico, Lámpara, Bicicleta, Ropa, Cajas, Otro","material":"uno de: Madera, Metal, Plástico, Tela, Vidrio, Mixto","condition":"uno de: Excelente, Bueno, Desgastado, Para piezas"}`,
+{"title":"nombre corto del objeto","description":"descripción de 1-2 frases del estado y características","category":"una de: Sofá, Sillón, Mesa, Silla, Estante, Cama, Armario, Electrodoméstico, Lámpara, Bicicleta, Ropa, Cajas, Otro","material":"uno de: Madera, Metal, Plástico, Tela, Vidrio, Mixto","condition":"uno de: Excelente, Bueno, Desgastado, Para piezas","ecoImpact":{"co2Saved":número entero kg CO2 evitados si se reutiliza (entre 5 y 80),"waterSaved":número entero litros de agua ahorrados (entre 0 y 300),"treesSaved":número entero árboles equivalentes (entre 0 y 5),"wasteDiverted":número entero kg de residuos desviados del vertedero (entre 0 y 50)}}
+Estima el ecoImpact basándote en el tipo de objeto, su tamaño visual, material y condición. Un objeto en mejor estado tiene mayor impacto porque es más probable que se reutilice.`,
               },
               {
                 type: "image_url",
@@ -91,7 +92,7 @@ export async function analyzeImage(base64Image: string): Promise<AIAnalysisResul
             ],
           },
         ],
-        max_tokens: 300,
+        max_tokens: 500,
       }),
     });
 
@@ -104,7 +105,7 @@ export async function analyzeImage(base64Image: string): Promise<AIAnalysisResul
     if (!content) throw new Error("Empty response");
 
     const parsed = JSON.parse(content);
-    const ecoImpact = getEcoScore(parsed.category);
+    const ecoImpact = parsed.ecoImpact ?? getEcoScore(parsed.category);
 
     return {
       title: parsed.title || FALLBACK_RESULT.title,
