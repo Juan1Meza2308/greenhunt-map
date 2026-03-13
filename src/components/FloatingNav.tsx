@@ -77,7 +77,7 @@ const FloatingNav = ({
       </div>
 
       {/* ── Right side map controls ── */}
-      <div className="absolute right-3 bottom-28 z-[1100] flex flex-col gap-2">
+      <div className="absolute right-3 z-[1100] flex flex-col gap-2" style={{ bottom: "calc(7rem + env(safe-area-inset-bottom))" }}>
         <button
           onClick={() => toast.info("Orientación del mapa reiniciada")}
           className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg text-white/80 hover:text-primary transition-colors"
@@ -100,7 +100,7 @@ const FloatingNav = ({
 
       {/* ── Bottom tab bar ── */}
       <div className="absolute bottom-0 left-0 right-0 z-[1100]">
-        <div className="bg-black/50 backdrop-blur-xl border-t border-white/10 shadow-2xl px-2 pt-2 pb-4">
+        <div className="bg-black/50 backdrop-blur-xl border-t border-white/10 shadow-2xl px-2 pt-2" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
           <div className="flex items-center justify-around">
             <motion.button
               whileTap={{ scale: 0.9 }}
