@@ -100,7 +100,7 @@ const FloatingNav = ({
 
       {/* ── Bottom tab bar ── */}
       <div className="absolute bottom-0 left-0 right-0 z-[1100]">
-        <div className="bg-black/50 backdrop-blur-xl border-t border-white/10 shadow-2xl px-2 pt-2" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
+        <div className="bg-black/50 backdrop-blur-xl border-t border-white/10 shadow-2xl px-2 pt-2 pb-4">
           <div className="flex items-center justify-around">
             <motion.button
               whileTap={{ scale: 0.9 }}
