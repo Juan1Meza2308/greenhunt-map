@@ -60,6 +60,9 @@ export default {
           concrete: "hsl(var(--gh-concrete))",
           charcoal: "hsl(var(--gh-charcoal))",
           "surface-dark": "hsl(var(--gh-surface-dark))",
+          neon: "hsl(142, 70%, 50%)",
+          gold: "hsl(45, 100%, 50%)",
+          danger: "hsl(0, 84%, 60%)",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -77,6 +80,11 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        "neon-glow": "0 0 15px -2px rgba(34, 197, 94, 0.5)",
+        "gold-glow": "0 0 15px -2px rgba(234, 179, 8, 0.5)",
+        "tactical": "0 10px 30px -10px rgba(0, 0, 0, 0.7)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -86,10 +94,21 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "pulse-tactical": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.8", transform: "scale(0.98)" },
+        },
+        "marker-glow": {
+          "0%": { transform: "scale(0.8)", opacity: "0.5" },
+          "50%": { transform: "scale(1.2)", opacity: "0.8" },
+          "100%": { transform: "scale(0.8)", opacity: "0.5" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-tactical": "pulse-tactical 2s ease-in-out infinite",
+        "marker-glow": "marker-glow 3s ease-in-out infinite",
       },
     },
   },

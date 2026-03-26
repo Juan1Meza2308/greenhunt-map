@@ -10,43 +10,58 @@ interface MapViewProps {
   centerTrigger?: number; // increment to re-center on user
 }
 
-// Custom DivIcon markers — teardrop location pin style
+// Custom DivIcon markers — tactical glowing rings style
 const createPinIcon = (age: "fresh" | "aging") => {
-  const color = age === "fresh" ? "#13b870" : "#f59e0b";
-  const border = age === "fresh" ? "#0d9458" : "#d97706";
+  const color = age === "fresh" ? "var(--gh-pin-fresh)" : "var(--gh-pin-aging)";
+  const shadowColor = age === "fresh" ? "rgba(20, 220, 100, 0.4)" : "rgba(234, 179, 8, 0.4)";
+  
   return L.divIcon({
-    html: `<div style="position:relative;width:32px;height:40px;">
+    html: `<div style="position:relative;width:40px;height:40px;display:flex;items-center;justify-center;">
+      <!-- Outer glow ring -->
       <div style="
-        width:32px;height:32px;border-radius:50% 50% 50% 0;
-        transform:rotate(-45deg);
-        background:${color};
-        border:2px solid ${border};
-        box-shadow:0 2px 8px rgba(0,0,0,0.4);
-        position:absolute;top:0;left:0;
+        position:absolute;width:100%;height:100%;
+        border-radius:50%;border:1px solid ${color};
+        opacity:0.3;animation:marker-glow 3s ease-in-out infinite;
       "></div>
+      <!-- Middle ring -->
       <div style="
-        width:14px;height:14px;border-radius:50%;
-        background:rgba(255,255,255,0.9);
-        position:absolute;top:9px;left:9px;
+        position:absolute;width:60%;height:60%;
+        border-radius:50%;border:2px solid ${color};
+        box-shadow:0 0 10px ${shadowColor};
+        top:20%;left:20%;
+      "></div>
+      <!-- Center dot -->
+      <div style="
+        position:absolute;width:25%;height:25%;
+        border-radius:50%;background:${color};
+        top:37.5%;left:37.5%;
+        box-shadow:0 0 8px ${color};
       "></div>
     </div>`,
     className: "",
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
   });
 };
 
 const userLocationIcon = L.divIcon({
-  html: `<div style="position:relative;width:20px;height:20px;">
+  html: `<div style="position:relative;width:24px;height:24px;">
+    <!-- Detection ping -->
     <div style="
-      width:20px;height:20px;border-radius:50%;
-      background:#ffffff;border:3px solid #13b870;
-      box-shadow:0 0 0 4px rgba(19,184,112,0.3);
+      position:absolute;inset:0;border-radius:50%;
+      border:2px solid #fff;opacity:0.5;
+      animation:leaflet-ping 2s ease-out infinite;
+    "></div>
+    <!-- User dot -->
+    <div style="
+      position:absolute;inset:6px;border-radius:50%;
+      background:#fff;border:2px solid var(--gh-pin-fresh);
+      box-shadow:0 0 10px rgba(255,255,255,0.8);
     "></div>
   </div>`,
   className: "",
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
 });
 
 // Handles initial location + re-centering when centerTrigger changes

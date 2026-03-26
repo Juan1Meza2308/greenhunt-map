@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { User, Trophy, List, Map, MessageCircle, Bell, Search, Compass, Layers, Crosshair, Plus } from "lucide-react";
+import { User, Trophy, List, Map, MessageCircle, Bell, Search, Compass, Layers, Crosshair, Plus, Skull, MapPin, Menu } from "lucide-react";
 import { toast } from "sonner";
 
 interface FloatingNavProps {
@@ -22,138 +22,127 @@ const FloatingNav = ({
   return (
     <>
       {/* ── Top header ── */}
-      <div className="absolute top-0 left-0 right-0 z-[1100] px-4 pt-3 pb-2">
-        <div className="flex items-center justify-between mb-2">
+      <div className="absolute top-0 left-0 right-0 z-[1100] px-4 pt-4 pb-2">
+        <div className="flex items-center justify-between mb-4">
           {/* Logo */}
-          <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1.5 shadow-lg">
-            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-white text-[10px] font-bold">G</span>
+          <div className="flex items-center gap-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 shadow-neon-glow">
+            <div className="w-6 h-6 rounded-full bg-gh-neon flex items-center justify-center shadow-[0_0_10px_rgba(20,220,100,0.6)]">
+              <span className="text-black text-[10px] font-bold">G</span>
             </div>
-            <span className="text-xs font-semibold text-white">GreenHunt</span>
+            <span className="text-sm font-display font-bold text-gh-neon glow-text tracking-wider uppercase">GreenHunt</span>
           </div>
 
-          {/* Right icons */}
-          <div className="flex gap-2">
-            <button
-              onClick={onFeedPress}
-              className={`w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg transition-colors ${
-                activeView === "feed" ? "text-primary border-primary/40" : "text-white/80 hover:text-primary"
-              }`}
-            >
-              <MessageCircle size={16} />
-            </button>
-            <button
-              onClick={() => toast.info("No hay notificaciones nuevas")}
-              className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg text-white/80 hover:text-primary transition-colors"
-            >
-              <Bell size={16} />
-            </button>
-            <button
-              onClick={onFeedPress}
-              className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg text-white/80 hover:text-primary transition-colors"
-            >
-              <Search size={16} />
-            </button>
-          </div>
+          {/* Hamburger Menu (Yellow Lines) */}
+          <button
+            onClick={() => toast.info("Menú táctico próximamente")}
+            className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-xl border border-gh-gold/30 flex items-center justify-center shadow-gold-glow text-gh-gold hover:scale-110 transition-transform"
+          >
+            <Menu size={20} strokeWidth={3} />
+          </button>
         </div>
 
-        {/* Weather widgets */}
+        {/* Readout widgets (Weather/Stats) */}
         <div className="flex gap-2">
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 shadow-lg">
-              <span className="text-[11px]">🌡️</span>
-              <span className="text-[11px] font-semibold text-white">760 mmHg</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 shadow-lg">
-              <span className="text-[11px]">🧭</span>
-              <span className="text-[11px] font-semibold text-white">N 15 km/h</span>
-            </div>
+          <div className="flex items-center gap-2 bg-black/40 backdrop-blur-lg border border-white/5 rounded-full px-3 py-1.5 shadow-tactical">
+            <Compass size={12} className="text-gh-neon animate-pulse" />
+            <span className="text-[10px] font-mono font-bold text-white/90 tracking-tighter">760 MMHG</span>
           </div>
-          <div className="flex items-center bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 shadow-lg self-start">
-            <span className="text-[11px]">🌤️</span>
-            <span className="text-[11px] font-semibold text-white ml-1">18°C</span>
+          <div className="flex items-center gap-2 bg-black/40 backdrop-blur-lg border border-white/5 rounded-full px-3 py-1.5 shadow-tactical">
+            <span className="text-[10px] font-mono font-bold text-white/90 tracking-tighter">NW 15KM/H</span>
+          </div>
+          <div className="flex items-center bg-black/40 backdrop-blur-lg border border-white/5 rounded-full px-3 py-1.5 shadow-tactical">
+            <span className="text-[10px] font-mono font-bold text-gh-neon tracking-tighter">18°C</span>
           </div>
         </div>
       </div>
 
       {/* ── Right side map controls ── */}
-      <div className="absolute right-3 z-[1100] flex flex-col gap-2" style={{ bottom: "calc(7rem + env(safe-area-inset-bottom))" }}>
-        <button
-          onClick={() => toast.info("Orientación del mapa reiniciada")}
-          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg text-white/80 hover:text-primary transition-colors"
-        >
-          <Compass size={18} />
-        </button>
-        <button
-          onClick={() => toast.info("Capas de mapa — próximamente")}
-          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg text-white/80 hover:text-primary transition-colors"
-        >
-          <Layers size={18} />
-        </button>
+      <div className="absolute right-4 z-[1100] flex flex-col gap-3" style={{ bottom: "calc(8rem + env(safe-area-inset-bottom))" }}>
         <button
           onClick={onCenterMap}
-          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg text-white/80 hover:text-primary transition-colors"
+          className="w-11 h-11 rounded-full bg-black/60 backdrop-blur-xl border border-gh-neon/40 flex items-center justify-center shadow-neon-glow text-gh-neon hover:bg-gh-neon/10 transition-colors"
         >
-          <Crosshair size={18} />
+          <Compass size={22} />
+        </button>
+        <button
+          onClick={() => toast.info("Interferencia detectada...")}
+          className="w-11 h-11 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-tactical text-white/70 hover:text-gh-neon transition-colors"
+        >
+          <Layers size={20} strokeWidth={1.5} />
         </button>
       </div>
 
       {/* ── Bottom tab bar ── */}
       <div className="absolute bottom-0 left-0 right-0 z-[1100]">
-        <div className="bg-black/50 backdrop-blur-xl border-t border-white/10 shadow-2xl px-2 pt-2" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
-          <div className="flex items-center justify-around">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => {/* already on map */}}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
-                activeView === "map" ? "text-primary" : "text-white/50"
-              }`}
-            >
-              <Map size={20} />
-              <span className="text-[10px] font-medium">Mapa</span>
-            </motion.button>
-
+        <div className="bg-black/80 backdrop-blur-2xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] px-4 pt-3 pb-safe-area-inset-bottom" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
+          <div className="flex items-center justify-around max-w-md mx-auto relative">
+            
+            {/* Hunt (Feed/Scanning) */}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={onFeedPress}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
-                activeView === "feed" ? "text-primary" : "text-white/50"
+              className={`flex flex-col items-center gap-1 transition-all ${
+                activeView === "feed" ? "text-gh-neon scale-110" : "text-white/40 hover:text-white/60"
               }`}
             >
-              <List size={20} />
-              <span className="text-[10px] font-medium">Feed</span>
+              <div className={activeView === "feed" ? "drop-shadow-[0_0_8px_rgba(20,220,100,0.5)]" : ""}>
+                <Crosshair size={24} strokeWidth={activeView === "feed" ? 2.5 : 1.5} />
+              </div>
+              <span className="text-[10px] font-display font-bold uppercase tracking-widest">Hunt</span>
             </motion.button>
 
-            {/* Camera FAB */}
+            {/* Explore (Map) */}
             <motion.button
               whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={onCameraPress}
-              className="w-14 h-14 -mt-6 rounded-full bg-primary text-white flex items-center justify-center shadow-lg gh-glow"
+              onClick={() => {}}
+              className={`flex flex-col items-center gap-1 transition-all ${
+                activeView === "map" ? "text-gh-neon scale-110" : "text-white/40 hover:text-white/60"
+              }`}
             >
-              <Plus size={26} />
+              <div className={activeView === "map" ? "drop-shadow-[0_0_8px_rgba(20,220,100,0.5)]" : ""}>
+                <MapPin size={24} strokeWidth={activeView === "map" ? 2.5 : 1.5} />
+              </div>
+              <span className="text-[10px] font-display font-bold uppercase tracking-widest text-[#f0f0f0] opacity-90">Explore</span>
             </motion.button>
 
+            {/* Camera / Add Pin FAB */}
+            <div className="relative -top-3">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={onCameraPress}
+                className="w-16 h-16 rounded-full bg-gh-neon text-black flex items-center justify-center shadow-[0_0_25px_rgba(20,220,100,0.6)] border-4 border-black group"
+              >
+                <Plus size={32} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-300" />
+              </motion.button>
+            </div>
+
+            {/* Ranking (Leaderboard) */}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={onLeaderboardPress}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
-                activeView === "leaderboard" ? "text-primary" : "text-white/50"
+              className={`flex flex-col items-center gap-1 transition-all ${
+                activeView === "leaderboard" ? "text-gh-neon scale-110" : "text-white/40 hover:text-white/60"
               }`}
             >
-              <Trophy size={20} />
-              <span className="text-[10px] font-medium">Ranking</span>
+              <div className={activeView === "leaderboard" ? "drop-shadow-[0_0_8px_rgba(20,220,100,0.5)]" : ""}>
+                <Trophy size={24} strokeWidth={activeView === "leaderboard" ? 2.5 : 1.5} />
+              </div>
+              <span className="text-[10px] font-display font-bold uppercase tracking-widest">Rank</span>
             </motion.button>
 
+            {/* Profile (Skull) */}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={onProfilePress}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
-                activeView === "profile" ? "text-primary" : "text-white/50"
+              className={`flex flex-col items-center gap-1 transition-all ${
+                activeView === "profile" ? "text-gh-neon scale-110" : "text-white/40 hover:text-white/60"
               }`}
             >
-              <User size={20} />
-              <span className="text-[10px] font-medium">Perfil</span>
+              <div className={activeView === "profile" ? "drop-shadow-[0_0_8px_rgba(20,220,100,0.5)]" : ""}>
+                <Skull size={24} strokeWidth={activeView === "profile" ? 2.5 : 1.5} />
+              </div>
+              <span className="text-[10px] font-display font-bold uppercase tracking-widest">Profile</span>
             </motion.button>
           </div>
         </div>
@@ -161,5 +150,7 @@ const FloatingNav = ({
     </>
   );
 };
+
+export default FloatingNav;
 
 export default FloatingNav;

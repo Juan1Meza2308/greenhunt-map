@@ -44,9 +44,9 @@
     --gh-orange: 38 92% 50%;
     --gh-concrete: 210 20% 98%;
     --gh-charcoal: 220 30% 6%;
-    --gh-surface-dark: 220 20% 14%;
-    --gh-pin-fresh: 160 81% 40%;
-    --gh-pin-aging: 38 92% 50%;
+    --gh-surface-dark: 220 20% 10%;
+    --gh-pin-fresh: 142 70% 50%;
+    --gh-pin-aging: 45 100% 50%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -59,33 +59,33 @@
   }
 
   .dark {
-    --background: 220 30% 6%;
+    --background: 220 30% 2%;
     --foreground: 210 20% 96%;
 
-    --card: 220 20% 14%;
+    --card: 220 20% 8%;
     --card-foreground: 210 20% 96%;
 
-    --popover: 220 20% 14%;
+    --popover: 220 20% 8%;
     --popover-foreground: 210 20% 96%;
 
-    --primary: 160 81% 40%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 70% 50%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 215 25% 20%;
+    --secondary: 220 30% 6%;
     --secondary-foreground: 0 0% 96%;
 
-    --muted: 215 20% 20%;
+    --muted: 215 20% 12%;
     --muted-foreground: 215 14% 55%;
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 22%;
-    --input: 215 20% 22%;
-    --ring: 160 81% 40%;
+    --border: 215 20% 15%;
+    --input: 215 20% 15%;
+    --ring: 142 70% 50%;
   }
 }
 
@@ -95,25 +95,37 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    @apply bg-background text-foreground font-body antialiased selection:bg-primary/30 selection:text-primary;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display tracking-tight uppercase;
   }
 }
 
 @layer utilities {
   .gh-glass {
-    @apply bg-secondary/80 backdrop-blur-xl border border-border/30;
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-tactical;
   }
 
   .gh-glow {
-    box-shadow: 0 0 20px hsl(var(--gh-green) / 0.3), 0 0 60px hsl(var(--gh-green) / 0.1);
+    box-shadow: 0 0 20px hsl(var(--gh-pin-fresh) / 0.4), 0 0 60px hsl(var(--gh-pin-fresh) / 0.1);
+  }
+
+  .gh-glow-gold {
+    box-shadow: 0 0 20px hsl(var(--gh-pin-aging) / 0.4), 0 0 60px hsl(var(--gh-pin-aging) / 0.1);
+  }
+
+  .tactical-button {
+    @apply relative overflow-hidden transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .glow-text {
+    text-shadow: 0 0 10px hsl(var(--gh-pin-fresh) / 0.5);
   }
 
   .gh-card-dark {
-    @apply bg-card rounded-2xl border border-border/20;
+    @apply bg-gh-surface-dark rounded-2xl border border-white/5;
   }
 }
 
