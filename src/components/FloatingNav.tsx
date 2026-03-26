@@ -152,5 +152,3 @@ const FloatingNav = ({
 };
 
 export default FloatingNav;
-
-export default FloatingNav;
